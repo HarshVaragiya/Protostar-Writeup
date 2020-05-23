@@ -1,9 +1,0 @@
-#Ghidra Lock File
-#Sat May 23 15:35:55 IST 2020
-OS\ Name=Linux
-OS\ Version=5.6.0-kali1-amd64
-Username=harsh
-Hostname=xeon
-<META>\ Supports\ File\ Channel\ Locking=Channel Lock
-OS\ Architecture=amd64
-Timestamp=5/23/20, 3\:35 PM
