@@ -1,4 +1,7 @@
 # Stack 5
+
+- inputting the ye old `AAAABBBB...` text in the buffer
+
 exploring gdb 
 ```gdb
 0xbffffc60:	0x41414141	0x42424242	0x43434343	0x44444444
